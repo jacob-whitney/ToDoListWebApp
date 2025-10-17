@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd"
+             version="3.2">
+    <persistence-unit name="tdl_pu" transaction-type="RESOURCE_LOCAL">
+        <!-- Provider -->
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- Entities automatically discovered if classes are annotated with @Entity -->
+        <!-- You can also explicitly list them: -->
+        <!-- <class>com.example.model.MyEntity</class> -->
+
+        <!-- Database connection properties -->
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/ToDoListFall2025?useSSL=false&amp;serverTimezone=UTC"/>
+            <property name="jakarta.persistence.jdbc.user" value="jacobdb"/>
+            <property name="jakarta.persistence.jdbc.password" value="Is-it-True-that-pigs-fly-32"/>
+
+            <!-- Hibernate-specific (dialect, DDL, logging) -->
+            <property name="hibernate.transaction.jta.platform" value=""/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+        </properties>
+    </persistence-unit>
+</persistence>
