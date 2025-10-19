@@ -7,6 +7,8 @@ import jakarta.persistence.*;
  * October 19, 2025
  * ToDoItem.java
  * @author Jacob Whitney
+ * Description: Users can add a to-do item, delete a to-do item, and
+ * view a list of to-do items
  */
 
 @Entity

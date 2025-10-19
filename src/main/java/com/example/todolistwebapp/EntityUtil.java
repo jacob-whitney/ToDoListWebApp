@@ -1,7 +1,14 @@
 package com.example.todolistwebapp;
 
 import jakarta.persistence.*;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,25 +18,32 @@ import java.util.List;
  * EntityUtil.java
  * @author Jacob Whitney
  */
-public interface EntityUtil {
+@WebServlet("/todo")
+public class EntityUtil extends HttpServlet {
     public static final EntityManagerFactory factory = Persistence.createEntityManagerFactory("tdl_pu");
     public static final EntityManager manager = factory.createEntityManager();
     public static final EntityTransaction transaction = manager.getTransaction();
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        List<ToDoItem> list = getToDoItemsFromDb();
+        request.setAttribute("list", list);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+        dispatcher.forward(request, response);
+    }
 
     /**
      * getToDoItemsFromDb
      * Query to-do items from database to populate the ToDoList
      * @return ToDoList
      */
-    public static ToDoList getToDoItemsFromDb() {
-        ToDoList list = new ToDoList();
+    public static List<ToDoItem> getToDoItemsFromDb() {
+        List<ToDoItem> list = List.of();
         try {
             transaction.begin();
-            List<ToDoItem> items = manager.createQuery("SELECT t FROM ToDoItem t", ToDoItem.class).getResultList();
-
-            for (ToDoItem item : items) {
-                list.addItem(item);
-            }
+            list = manager.createQuery("SELECT t FROM ToDoItem t", ToDoItem.class).getResultList();
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
