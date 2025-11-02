@@ -20,10 +20,6 @@ import java.util.List;
  */
 @WebServlet("/todo")
 public class EntityUtil extends HttpServlet {
-    public static final EntityManagerFactory factory = Persistence.createEntityManagerFactory("tdl_pu");
-    public static final EntityManager manager = factory.createEntityManager();
-    public static final EntityTransaction transaction = manager.getTransaction();
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -34,12 +30,36 @@ public class EntityUtil extends HttpServlet {
         dispatcher.forward(request, response);
     }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String action = request.getParameter("action");
+
+        if ("add".equals(action)) {
+            String description = request.getParameter("description");
+            ToDoItem item = new ToDoItem(description);
+            addItemToDb(item);
+
+        } else if ("delete".equals(action)) {
+            long id = Integer.parseInt(request.getParameter("id"));
+            deleteItemFromDb(id);
+        }
+
+        // After performing the action, redirect back to the list
+        response.sendRedirect("todo");
+    }
+
     /**
      * getToDoItemsFromDb
-     * Query to-do items from database to populate the ToDoList
-     * @return ToDoList
+     * Query to-do items from database to populate the list
+     * @return List<ToDoItem>
      */
     public static List<ToDoItem> getToDoItemsFromDb() {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("tdl_pu");
+        EntityManager manager = factory.createEntityManager();
+        EntityTransaction transaction = manager.getTransaction();
+
         List<ToDoItem> list = List.of();
         try {
             transaction.begin();
@@ -48,6 +68,8 @@ public class EntityUtil extends HttpServlet {
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             e.printStackTrace();
+        } finally {
+            manager.close();
         }
         return list;
     }
@@ -57,6 +79,10 @@ public class EntityUtil extends HttpServlet {
      * Adds passed item to database
      */
     public static boolean addItemToDb(ToDoItem $item) {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("tdl_pu");
+        EntityManager manager = factory.createEntityManager();
+        EntityTransaction transaction = manager.getTransaction();
+
         boolean result = false;
         try {
             transaction.begin();
@@ -66,6 +92,8 @@ public class EntityUtil extends HttpServlet {
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             e.printStackTrace();
+        } finally {
+            manager.close();
         }
 
         return result;
@@ -76,6 +104,10 @@ public class EntityUtil extends HttpServlet {
      * Delete item with passed ID from database
      */
     public static boolean deleteItemFromDb(Long id) {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("tdl_pu");
+        EntityManager manager = factory.createEntityManager();
+        EntityTransaction transaction = manager.getTransaction();
+
         boolean result = false;
         try {
             transaction.begin();
@@ -90,24 +122,7 @@ public class EntityUtil extends HttpServlet {
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             e.printStackTrace();
-        }
-
-        return result;
-    }
-
-    /**
-     * closeTransactionManager
-     * Closes transaction manager after all transactions are complete
-     */
-    public static boolean closeTransactionManager() {
-        boolean result = false;
-        try {
-            if (transaction.isActive()) transaction.rollback();
-            result = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        finally {
+        } finally {
             manager.close();
         }
 
